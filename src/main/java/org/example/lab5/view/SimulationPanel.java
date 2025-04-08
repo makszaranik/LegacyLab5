@@ -1,4 +1,7 @@
-package org.example.lab5;
+package org.example.lab5.view;
+
+import org.example.lab5.controller.AudienceController;
+import org.example.lab5.model.Audience;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -6,14 +9,14 @@ import java.awt.*;
 
 public class SimulationPanel extends JPanel {
 
-    private University university;
+    private AudienceController audienceController;
     private JTextArea simulationTextArea;
     private JButton startSimulationButton;
     private Timer simulationTimer;
     private int simulationStep = 0;
 
-    public SimulationPanel(University university) {
-        this.university = university;
+    public SimulationPanel(AudienceController audienceController) {
+        this.audienceController = audienceController;
         setLayout(new BorderLayout(5, 5));
         initUI();
     }
@@ -38,8 +41,10 @@ public class SimulationPanel extends JPanel {
     }
 
     private void startSimulation() {
-        if (university.getAudiences().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Create at least one audience to run the simulation!", "Error", JOptionPane.ERROR_MESSAGE);
+        if (audienceController.getAllAudiences().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Create at least one audience to run the simulation!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         startSimulationButton.setEnabled(false);
@@ -52,10 +57,10 @@ public class SimulationPanel extends JPanel {
 
     private void updateSimulation() {
         simulationStep++;
-        Audience maxCapacityAudience = university.getAudienceWithMaxCapacity();
+        Audience maxCapacityAudience = audienceController.getAudienceWithMaxCapacity();
         if (maxCapacityAudience != null) {
             simulationTextArea.append("Step " + simulationStep + ": Audience with the highest capacity - "
-                    + maxCapacityAudience.getAudienceName() + "\n");
+                    + maxCapacityAudience.getName() + "\n");
         }
         if (simulationStep >= 10) {
             simulationTimer.stop();

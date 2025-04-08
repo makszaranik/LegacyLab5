@@ -1,12 +1,14 @@
-package org.example.lab5;
+package org.example.lab5.view;
 
+import org.example.lab5.controller.AudienceController;
+import org.example.lab5.model.Audience;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 public class AudiencePanel extends JPanel {
 
-    private final University university;
+    private final AudienceController audienceController;
     private JTextField audienceNameField;
     private JTextField audienceCapacityField;
     private JComboBox<String> audienceTypeComboBox;
@@ -14,8 +16,8 @@ public class AudiencePanel extends JPanel {
     private JList<String> audienceJList;
     private JButton sortByCapacityButton;
 
-    public AudiencePanel(University university) {
-        this.university = university;
+    public AudiencePanel(AudienceController audienceController) {
+        this.audienceController = audienceController;
         setLayout(new BorderLayout(5, 5));
         initUI();
         updateAudienceList();
@@ -37,19 +39,15 @@ public class AudiencePanel extends JPanel {
         audienceTypeComboBox = new JComboBox<>(new String[]{"LECTURE", "CONFERENCE", "LABORATORY"});
         inputPanel.add(audienceTypeComboBox);
 
-
-
         JButton addAudienceButton = new JButton("Add Audience");
         addAudienceButton.addActionListener(e -> addAudience());
         inputPanel.add(addAudienceButton);
-
 
         sortByCapacityButton = new JButton("Sort by Capacity");
         sortByCapacityButton.addActionListener(e -> sortAudiences());
         inputPanel.add(sortByCapacityButton);
 
         add(inputPanel, BorderLayout.NORTH);
-
 
         audienceListModel = new DefaultListModel<>();
         audienceJList = new JList<>(audienceListModel);
@@ -62,51 +60,26 @@ public class AudiencePanel extends JPanel {
         String name = audienceNameField.getText().trim();
         String capacityStr = audienceCapacityField.getText().trim();
         String type = (String) audienceTypeComboBox.getSelectedItem();
-
-
-        if (name.isEmpty() || capacityStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all audience fields!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int capacity;
         try {
-            capacity = Integer.parseInt(capacityStr);
-            if (capacity <= 0) {
-                JOptionPane.showMessageDialog(this, "Capacity must be a positive number!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Capacity must be a numeric value!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Audience.AudienceType audienceType;
-        try {
-            audienceType = Audience.AudienceType.valueOf(type);
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, "Unknown audience type!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Audience audience = new Audience(name, capacity, audienceType);
-        if (university.addAudience(audience)) {
-            audienceListModel.addElement(audience.toString());
+            audienceController.addAudience(name, capacityStr, type);
+            updateAudienceList();
             audienceNameField.setText("");
             audienceCapacityField.setText("");
-        } else {
-            JOptionPane.showMessageDialog(this, "Audience already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void sortAudiences() {
-        university.sortAudiencesByCapacity();
-        updateAudienceList();
+        audienceListModel.clear();
+        for (Audience audience : audienceController.sortAudiencesByCapacity()) {
+            audienceListModel.addElement(audience.toString());
+        }
     }
 
     private void updateAudienceList() {
         audienceListModel.clear();
-        for (Audience audience : university.getAudiences()) {
+        for (Audience audience : audienceController.getAllAudiences()) {
             audienceListModel.addElement(audience.toString());
         }
     }
