@@ -8,7 +8,6 @@ import java.util.Optional;
 public class AudienceRepositoryInMemory implements AudienceRepository {
 
     private static AudienceRepositoryInMemory instance;
-
     private final List<Audience> audiences = new ArrayList<>();
 
     private AudienceRepositoryInMemory() {}
@@ -46,14 +45,21 @@ public class AudienceRepositoryInMemory implements AudienceRepository {
     }
 
     @Override
-    public boolean updateAudience(Audience updatedAudience) {
+    public void updateAudience(Audience updatedAudience) {
         Optional<Audience> audienceOpt = findAudienceByName(updatedAudience.getName());
         if (audienceOpt.isPresent()) {
             Audience audience = audienceOpt.get();
             audience.setCapacity(updatedAudience.getCapacity());
             audience.setAudienceType(updatedAudience.getAudienceType());
-            return true;
         }
-        return false;
+    }
+
+    @Override
+    public int countStudentsInAudience(String name) {
+        Optional<Audience> audienceOpt = findAudienceByName(name);
+        if (audienceOpt.isPresent()) {
+            return audienceOpt.get().getStudents().size();
+        }
+        throw new IllegalArgumentException("Audience not found: " + name);
     }
 }

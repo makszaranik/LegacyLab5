@@ -7,7 +7,6 @@ import org.example.lab5.validator.AudienceValidator;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 public class AudienceController {
     private AudienceRepository audienceRepository = AudienceRepositoryInMemory.getInstance();
@@ -46,4 +45,20 @@ public class AudienceController {
                 .max(Comparator.comparing(Audience::getCapacity))
                 .orElse(null);
     }
+
+    public void updateAudience(String oldName, String newName, String capacityStr, String typeStr) {
+        audienceValidator.validate(newName, capacityStr, typeStr);
+        int capacity = Integer.parseInt(capacityStr);
+        Audience.AudienceType type = Audience.AudienceType.valueOf(typeStr);
+
+        Audience audience = audienceRepository.findAudienceByName(oldName)
+                .orElseThrow(() -> new IllegalArgumentException("Audience with name '" + oldName + "' not found."));
+
+        audience.setName(newName);
+        audience.setCapacity(capacity);
+        audience.setAudienceType(type);
+
+        audienceRepository.updateAudience(audience);
+    }
+
 }

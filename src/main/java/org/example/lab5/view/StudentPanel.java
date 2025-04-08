@@ -8,21 +8,21 @@ import org.example.lab5.model.Student;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class StudentPanel extends JPanel {
 
-    private AudienceController audienceController;
-    private StudentController studentController;
+    private final AudienceController audienceController;
+    private final StudentController studentController;
     private JComboBox<String> audienceSelectComboBox;
     private DefaultComboBoxModel<String> audienceSelectComboModel;
     private JTextField studentNameField;
     private JTextField studentAgeField;
-    private JButton addStudentButton;
-    private DefaultListModel<String> studentListModel;
-    private JList<String> studentJList;
+    private DefaultListModel<Student> studentListModel;
+    private JList<Student> studentJList;
     private JTextField removeStudentField;
-    private JButton removeStudentButton;
 
     public StudentPanel(AudienceController audienceController, StudentController studentController) {
         this.audienceController = audienceController;
@@ -56,16 +56,19 @@ public class StudentPanel extends JPanel {
         inputPanel.add(row3);
 
         JPanel row4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        addStudentButton = new JButton("Add Student");
+        JButton addStudentButton = new JButton("Add Student");
         addStudentButton.addActionListener(e -> addStudentToAudience());
         row4.add(addStudentButton);
+        JButton updateStudentButton = new JButton("Update Student");
+        updateStudentButton.addActionListener(e -> updateStudent());
+        row4.add(updateStudentButton);
         inputPanel.add(row4);
 
         JPanel row5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         row5.add(new JLabel("Remove Student by Name:"));
         removeStudentField = new JTextField(15);
         row5.add(removeStudentField);
-        removeStudentButton = new JButton("Remove Student");
+        JButton removeStudentButton = new JButton("Remove Student");
         removeStudentButton.addActionListener(e -> removeStudentFromAudience());
         row5.add(removeStudentButton);
         inputPanel.add(row5);
@@ -74,10 +77,26 @@ public class StudentPanel extends JPanel {
 
         studentListModel = new DefaultListModel<>();
         studentJList = new JList<>(studentListModel);
+        studentJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        studentJList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Student selected = studentJList.getSelectedValue();
+                    if (selected != null) {
+                        studentNameField.setText(selected.getName());
+                        studentAgeField.setText(String.valueOf(selected.getAge()));
+                    }
+                }
+            }
+        });
+
         JScrollPane scrollPane = new JScrollPane(studentJList);
         scrollPane.setBorder(new TitledBorder("Students of Selected Audience"));
         add(scrollPane, BorderLayout.CENTER);
     }
+
 
     public void updateAudienceComboBox() {
         audienceSelectComboModel.removeAllElements();
@@ -132,6 +151,53 @@ public class StudentPanel extends JPanel {
         studentAgeField.setText("");
     }
 
+    private void updateStudent() {
+        Student selected = studentJList.getSelectedValue();
+        if (selected == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a student to update.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        String oldName = selected.getName();
+        String newName = studentNameField.getText().trim();
+        String ageStr = studentAgeField.getText().trim();
+
+        if (newName.isEmpty() || ageStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please fill in both student name and age for update.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int newAge;
+        try {
+            newAge = Integer.parseInt(ageStr);
+            if (newAge <= 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Age must be a positive number!",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Age must be a numeric value!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            studentController.updateStudent(oldName, newName, newAge);
+            JOptionPane.showMessageDialog(this,
+                    "Student updated successfully!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        updateStudentListForSelectedAudience();
+        studentNameField.setText("");
+        studentAgeField.setText("");
+    }
+
     private void removeStudentFromAudience() {
         String studentName = removeStudentField.getText().trim();
         if (studentName.isEmpty()) {
@@ -166,7 +232,7 @@ public class StudentPanel extends JPanel {
         if (selectedAudienceName != null) {
             List<Student> students = studentController.getStudentsByAudience(selectedAudienceName);
             for (Student s : students) {
-                studentListModel.addElement(s.toString());
+                studentListModel.addElement(s);
             }
         }
     }

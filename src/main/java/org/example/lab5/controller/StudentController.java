@@ -48,4 +48,18 @@ public class StudentController {
             throw new IllegalArgumentException("Audience not found.");
         return optionalAudience.get().getStudents();
     }
+
+    public void updateStudent(String oldName, String newName, int newAge) {
+        Optional<Student> studentOpt = studentRepository.findStudentByName(oldName);
+        if (!studentOpt.isPresent()) {
+            throw new IllegalArgumentException("Student with name '" + oldName + "' not found.");
+        }
+        Student student = studentOpt.get();
+        student.setName(newName);
+        student.setAge(newAge);
+        // Обновляем данные в репозитории
+        if (!studentRepository.updateStudent(student)) {
+            throw new IllegalArgumentException("Failed to update student: " + newName);
+        }
+    }
 }

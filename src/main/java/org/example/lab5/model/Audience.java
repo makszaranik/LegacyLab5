@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class Audience {
-    private final String name;
+    private String name;
     private int capacity;
     private AudienceType audienceType;
     private List<Student> students = new ArrayList<>();

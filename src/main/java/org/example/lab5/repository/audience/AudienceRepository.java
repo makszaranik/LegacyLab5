@@ -11,6 +11,7 @@ public interface AudienceRepository {
     Optional<Audience> findAudienceByName(String audienceName);
     List<Audience> findAll();
     boolean removeAudience(String name);
-    boolean updateAudience(Audience updatedAudience);
+    void updateAudience(Audience updatedAudience);
+    int countStudentsInAudience(String name);
 
 }

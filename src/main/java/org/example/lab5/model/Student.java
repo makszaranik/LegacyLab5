@@ -7,8 +7,8 @@ import java.util.List;
 @Data
 public class Student {
 
-    private final String name;
-    private final int age;
+    private String name;
+    private int age;
 
 
     public Student(String name, int age) {
