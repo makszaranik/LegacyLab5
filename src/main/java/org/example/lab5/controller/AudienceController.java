@@ -1,5 +1,6 @@
 package org.example.lab5.controller;
 
+import org.example.lab5.Annotation.Autowired;
 import org.example.lab5.Annotation.Component;
 import org.example.lab5.model.Audience;
 import org.example.lab5.repository.audience.AudienceRepository;
@@ -11,17 +12,14 @@ import java.util.List;
 
 @Component
 public class AudienceController {
-    private AudienceRepository audienceRepository = AudienceRepositoryInMemory.getInstance();
-    private AudienceValidator audienceValidator = AudienceValidator.getInstance();
 
-    public AudienceController(AudienceRepository audienceRepository, AudienceValidator audienceValidator) {
-        this.audienceRepository = audienceRepository;
-        this.audienceValidator = audienceValidator;
-    }
+    @Autowired
+    private AudienceRepositoryInMemory audienceRepository;
+
+    @Autowired
+    private AudienceValidator audienceValidator;
 
     public AudienceController() {}
-
-
 
     public void addAudience(String name, String capacityStr, String typeStr) {
         audienceValidator.validate(name, capacityStr, typeStr);

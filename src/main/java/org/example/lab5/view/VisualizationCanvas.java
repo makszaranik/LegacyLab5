@@ -1,5 +1,9 @@
 package org.example.lab5.view;
 
+import lombok.NoArgsConstructor;
+import org.example.lab5.Annotation.Autowired;
+import org.example.lab5.Annotation.Component;
+import org.example.lab5.Annotation.PostConstruct;
 import org.example.lab5.controller.AudienceController;
 import org.example.lab5.model.Audience;
 import org.example.lab5.model.Student;
@@ -10,9 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Component
+@NoArgsConstructor
 public class VisualizationCanvas extends JPanel {
 
-    private final AudienceController audienceController;
+    @Autowired
+    private AudienceController audienceController;
+
     private boolean blinkOn = false;
 
     private final Map<Audience.AudienceType, Color> palette = Map.of(
@@ -21,8 +29,9 @@ public class VisualizationCanvas extends JPanel {
             Audience.AudienceType.LABORATORY, new Color(220, 190, 200)
     );
 
-    public VisualizationCanvas(AudienceController audienceController) {
-        this.audienceController = audienceController;
+
+    @PostConstruct
+    private void initCanvas() {
         setPreferredSize(new Dimension(800, 500));
         setBackground(Color.white);
     }
@@ -30,7 +39,7 @@ public class VisualizationCanvas extends JPanel {
     public void nextStep() {
         List<Audience> list = audienceController.getAllAudiences();
         if (list.isEmpty()) return;
-        blinkOn  = !blinkOn;
+        blinkOn = !blinkOn;
         repaint();
     }
 

@@ -7,16 +7,7 @@ import org.example.lab5.model.Audience;
 @Component
 public class AudienceValidator {
 
-    private static AudienceValidator instance;
-
-    private AudienceValidator() { }
-
-    public static AudienceValidator getInstance() {
-        if (instance == null) {
-            instance = new AudienceValidator();
-        }
-        return instance;
-    }
+    public AudienceValidator() { }
 
     public void validate(String name, String capacityStr, String typeStr) {
         if (name == null || name.trim().isEmpty()) {

@@ -1,25 +1,35 @@
 package org.example.lab5.view;
 
+import lombok.NoArgsConstructor;
+import org.example.lab5.Annotation.Autowired;
+import org.example.lab5.Annotation.Component;
+import org.example.lab5.Annotation.PostConstruct;
 import org.example.lab5.controller.AudienceController;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
 
+@Component
+@NoArgsConstructor
 public class SimulationPanel extends JPanel {
 
-    private final VisualizationCanvas canvas;
-    private final Timer timer;
-    private final JSlider speedSlider;
+    @Autowired
+    private AudienceController audienceController;
 
-    public SimulationPanel(AudienceController audienceController) {
+    @Autowired
+    private VisualizationCanvas canvas;
+
+    private Timer timer;
+    private JSlider speedSlider;
+
+    @PostConstruct
+    private void initUI() {
         setLayout(new BorderLayout(5, 5));
 
-        canvas = new VisualizationCanvas(audienceController);
         add(new JScrollPane(canvas), BorderLayout.CENTER);
 
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-
         JButton startBtn = new JButton("Start");
         JButton pauseBtn = new JButton("Pause");
         JButton stopBtn  = new JButton("Stop");
@@ -49,13 +59,11 @@ public class SimulationPanel extends JPanel {
             pauseBtn.setEnabled(true);
             stopBtn.setEnabled(true);
         });
-
         pauseBtn.addActionListener(e -> {
             timer.stop();
             startBtn.setEnabled(true);
             pauseBtn.setEnabled(false);
         });
-
         stopBtn.addActionListener(e -> {
             timer.stop();
             canvas.reset();

@@ -1,5 +1,9 @@
 package org.example.lab5.view;
 
+import lombok.NoArgsConstructor;
+import org.example.lab5.Annotation.Autowired;
+import org.example.lab5.Annotation.Component;
+import org.example.lab5.Annotation.PostConstruct;
 import org.example.lab5.controller.AudienceController;
 import org.example.lab5.model.Audience;
 
@@ -8,25 +12,26 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
+@Component
+@NoArgsConstructor
 public class AudiencePanel extends JPanel {
 
-    private final AudienceController audienceController;
+    @Autowired
+    private AudienceController audienceController;
+
     private JTextField audienceNameField;
     private JTextField audienceCapacityField;
     private JComboBox<String> audienceTypeComboBox;
-
     private DefaultListModel<Audience> audienceListModel;
     private JList<Audience> audienceJList;
 
-    public AudiencePanel(AudienceController audienceController) {
-        this.audienceController = audienceController;
-        setLayout(new BorderLayout(5, 5));
-        initUI();
-        updateAudienceList();
-    }
 
+    @PostConstruct
     private void initUI() {
+        setLayout(new BorderLayout(5, 5));
+
         JPanel inputPanel = new JPanel(new GridLayout(6, 2, 5, 5));
         inputPanel.setBorder(new TitledBorder("Manage Audience"));
 
@@ -39,112 +44,122 @@ public class AudiencePanel extends JPanel {
         inputPanel.add(audienceCapacityField);
 
         inputPanel.add(new JLabel("Audience Type:"));
-        audienceTypeComboBox = new JComboBox<>(new String[]{"LECTURE", "CONFERENCE", "LABORATORY"});
+        audienceTypeComboBox = new JComboBox<>(
+                new String[]{"LECTURE", "CONFERENCE", "LABORATORY"});
         inputPanel.add(audienceTypeComboBox);
 
-        JButton addAudienceButton = new JButton("Add Audience");
-        addAudienceButton.addActionListener(e -> addAudience());
-        inputPanel.add(addAudienceButton);
+        JButton addBtn = new JButton("Add Audience");
+        addBtn.addActionListener(e -> addAudience());
+        inputPanel.add(addBtn);
 
-        JButton sortByCapacityButton = new JButton("Sort by Capacity");
-        sortByCapacityButton.addActionListener(e -> sortAudiences());
-        inputPanel.add(sortByCapacityButton);
+        JButton sortBtn = new JButton("Sort by Capacity");
+        sortBtn.addActionListener(e -> sortAudiences());
+        inputPanel.add(sortBtn);
 
-        JButton updateAudienceButton = new JButton("Update Audience");
-        updateAudienceButton.addActionListener(e -> updateAudience());
-        inputPanel.add(updateAudienceButton);
+        JButton updateBtn = new JButton("Update Audience");
+        updateBtn.addActionListener(e -> updateAudience());
+        inputPanel.add(updateBtn);
 
-        JButton numberOfStudentsInAudienceButton = new JButton("Number of students");
-        numberOfStudentsInAudienceButton.addActionListener(e -> getNumberOfStudents());
-        inputPanel.add(numberOfStudentsInAudienceButton);
+        JButton countBtn = new JButton("Number of students");
+        countBtn.addActionListener(e -> showStudentCount());
+        inputPanel.add(countBtn);
 
         add(inputPanel, BorderLayout.NORTH);
 
         audienceListModel = new DefaultListModel<>();
         audienceJList = new JList<>(audienceListModel);
         audienceJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
         audienceJList.addMouseListener(new MouseAdapter() {
-            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    Audience selected = audienceJList.getSelectedValue();
-                    if (selected != null) {
-                        audienceNameField.setText(selected.getName());
-                        audienceCapacityField.setText(String.valueOf(selected.getCapacity()));
-                        audienceTypeComboBox.setSelectedItem(selected.getAudienceType().name());
+                    Audience sel = audienceJList.getSelectedValue();
+                    if (sel != null) {
+                        audienceNameField.setText(sel.getName());
+                        audienceCapacityField.setText(
+                                String.valueOf(sel.getCapacity()));
+                        audienceTypeComboBox.setSelectedItem(
+                                sel.getAudienceType().name());
                     }
                 }
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane(audienceJList);
-        scrollPane.setBorder(new TitledBorder("Audience List (with Student Count)"));
-        add(scrollPane, BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(audienceJList);
+        scroll.setBorder(new TitledBorder(
+                "Audience List (with Student Count)"));
+        add(scroll, BorderLayout.CENTER);
+
+        refreshList();
     }
 
     private void addAudience() {
-        String name = audienceNameField.getText().trim();
-        String capacityStr = audienceCapacityField.getText().trim();
-        String type = (String) audienceTypeComboBox.getSelectedItem();
         try {
-            audienceController.addAudience(name, capacityStr, type);
-            updateAudienceList();
-            audienceNameField.setText("");
-            audienceCapacityField.setText("");
+            audienceController.addAudience(
+                    audienceNameField.getText().trim(),
+                    audienceCapacityField.getText().trim(),
+                    (String) audienceTypeComboBox.getSelectedItem());
+            clearInputs();
+            refreshList();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void updateAudience() {
-        Audience selected = audienceJList.getSelectedValue();
-        if (selected == null) {
             JOptionPane.showMessageDialog(this,
-                    "Please select an audience to update.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+                    ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        String oldName = selected.getName();
-        String newName = audienceNameField.getText().trim();
-        String capacityStr = audienceCapacityField.getText().trim();
-        String type = (String) audienceTypeComboBox.getSelectedItem();
-        try {
-            audienceController.updateAudience(oldName, newName, capacityStr, type);
-            updateAudienceList();
-            audienceNameField.setText("");
-            audienceCapacityField.setText("");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void getNumberOfStudents() {
-        Audience selected = audienceJList.getSelectedValue();
-        if (selected == null) {
-            JOptionPane.showMessageDialog(this,
-                    "Please select an audience to view its student count.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        int count = selected.getStudents().size();
-        JOptionPane.showMessageDialog(this,
-                "The audience '" + selected.getName() + "' has " + count + " student(s).",
-                "Student Count", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void sortAudiences() {
         audienceListModel.clear();
-        for (Audience audience : audienceController.sortAudiencesByCapacity()) {
-            audienceListModel.addElement(audience);
+        for (Audience a : audienceController.sortAudiencesByCapacity()) {
+            audienceListModel.addElement(a);
         }
     }
 
-    private void updateAudienceList() {
-        audienceListModel.clear();
-        for (Audience audience : audienceController.getAllAudiences()) {
-            audienceListModel.addElement(audience);
+    private void updateAudience() {
+        Audience sel = audienceJList.getSelectedValue();
+        if (sel == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Select an audience first", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
         }
+        try {
+            audienceController.updateAudience(
+                    sel.getName(),
+                    audienceNameField.getText().trim(),
+                    audienceCapacityField.getText().trim(),
+                    (String) audienceTypeComboBox.getSelectedItem());
+            clearInputs();
+            refreshList();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void showStudentCount() {
+        Audience sel = audienceJList.getSelectedValue();
+        if (sel == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Select an audience first", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int count = audienceController
+                .getAudienceWithMaxCapacity()
+                .getStudents().size();
+        JOptionPane.showMessageDialog(this,
+                "Students: " + count, "Count",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void refreshList() {
+        audienceListModel.clear();
+        for (Audience a : audienceController.getAllAudiences()) {
+            audienceListModel.addElement(a);
+        }
+    }
+
+    private void clearInputs() {
+        audienceNameField.setText("");
+        audienceCapacityField.setText("");
     }
 }

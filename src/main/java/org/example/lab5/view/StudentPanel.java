@@ -1,5 +1,9 @@
 package org.example.lab5.view;
 
+import lombok.NoArgsConstructor;
+import org.example.lab5.Annotation.Autowired;
+import org.example.lab5.Annotation.Component;
+import org.example.lab5.Annotation.PostConstruct;
 import org.example.lab5.controller.AudienceController;
 import org.example.lab5.controller.StudentController;
 import org.example.lab5.model.Audience;
@@ -12,10 +16,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+@Component
+@NoArgsConstructor
 public class StudentPanel extends JPanel {
 
-    private final AudienceController audienceController;
-    private final StudentController studentController;
+    @Autowired
+    private AudienceController audienceController;
+
+    @Autowired
+    private StudentController studentController;
+
     private JComboBox<String> audienceSelectComboBox;
     private DefaultComboBoxModel<String> audienceSelectComboModel;
     private JTextField studentNameField;
@@ -24,14 +34,10 @@ public class StudentPanel extends JPanel {
     private JList<Student> studentJList;
     private JTextField removeStudentField;
 
-    public StudentPanel(AudienceController audienceController, StudentController studentController) {
-        this.audienceController = audienceController;
-        this.studentController = studentController;
-        setLayout(new BorderLayout(5, 5));
-        initUI();
-    }
-
+    @PostConstruct
     private void initUI() {
+        setLayout(new BorderLayout(5, 5));
+
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
         inputPanel.setBorder(new TitledBorder("Student Management"));
@@ -78,15 +84,14 @@ public class StudentPanel extends JPanel {
         studentListModel = new DefaultListModel<>();
         studentJList = new JList<>(studentListModel);
         studentJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
         studentJList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    Student selected = studentJList.getSelectedValue();
-                    if (selected != null) {
-                        studentNameField.setText(selected.getName());
-                        studentAgeField.setText(String.valueOf(selected.getAge()));
+                    Student sel = studentJList.getSelectedValue();
+                    if (sel != null) {
+                        studentNameField.setText(sel.getName());
+                        studentAgeField.setText(String.valueOf(sel.getAge()));
                     }
                 }
             }
@@ -95,8 +100,10 @@ public class StudentPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(studentJList);
         scrollPane.setBorder(new TitledBorder("Students of Selected Audience"));
         add(scrollPane, BorderLayout.CENTER);
-    }
 
+        updateAudienceComboBox();
+        updateStudentListForSelectedAudience();
+    }
 
     public void updateAudienceComboBox() {
         audienceSelectComboModel.removeAllElements();
@@ -108,7 +115,6 @@ public class StudentPanel extends JPanel {
     private void addStudentToAudience() {
         String studentName = studentNameField.getText().trim();
         String ageStr = studentAgeField.getText().trim();
-
         if (studentName.isEmpty() || ageStr.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Please fill in both student name and age!",
@@ -118,27 +124,22 @@ public class StudentPanel extends JPanel {
         int age;
         try {
             age = Integer.parseInt(ageStr);
-            if (age <= 0) {
-                JOptionPane.showMessageDialog(this,
-                        "Age must be a positive number!",
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        } catch (NumberFormatException e) {
+            if (age <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Age must be a numeric value!",
+                    "Age must be a positive integer!",
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String selectedAudienceName = (String) audienceSelectComboBox.getSelectedItem();
-        if (selectedAudienceName == null) {
+        String audName = (String) audienceSelectComboBox.getSelectedItem();
+        if (audName == null) {
             JOptionPane.showMessageDialog(this,
                     "Please create an audience first!",
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
-            studentController.addStudentToAudience(selectedAudienceName, studentName, String.valueOf(age));
+            studentController.addStudentToAudience(audName, studentName, String.valueOf(age));
             JOptionPane.showMessageDialog(this,
                     "Student " + studentName + " added!");
         } catch (Exception ex) {
@@ -152,17 +153,16 @@ public class StudentPanel extends JPanel {
     }
 
     private void updateStudent() {
-        Student selected = studentJList.getSelectedValue();
-        if (selected == null) {
+        Student sel = studentJList.getSelectedValue();
+        if (sel == null) {
             JOptionPane.showMessageDialog(this,
                     "Please select a student to update.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String oldName = selected.getName();
+        String oldName = sel.getName();
         String newName = studentNameField.getText().trim();
         String ageStr = studentAgeField.getText().trim();
-
         if (newName.isEmpty() || ageStr.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Please fill in both student name and age for update.",
@@ -172,15 +172,10 @@ public class StudentPanel extends JPanel {
         int newAge;
         try {
             newAge = Integer.parseInt(ageStr);
-            if (newAge <= 0) {
-                JOptionPane.showMessageDialog(this,
-                        "Age must be a positive number!",
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        } catch (NumberFormatException e) {
+            if (newAge <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Age must be a numeric value!",
+                    "Age must be a positive integer!",
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -206,15 +201,15 @@ public class StudentPanel extends JPanel {
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String selectedAudienceName = (String) audienceSelectComboBox.getSelectedItem();
-        if (selectedAudienceName == null) {
+        String audName = (String) audienceSelectComboBox.getSelectedItem();
+        if (audName == null) {
             JOptionPane.showMessageDialog(this,
                     "Please create an audience first!",
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
-            studentController.removeStudentFromAudience(selectedAudienceName, studentName);
+            studentController.removeStudentFromAudience(audName, studentName);
             JOptionPane.showMessageDialog(this,
                     "Student " + studentName + " removed!");
         } catch (Exception ex) {
@@ -228,9 +223,9 @@ public class StudentPanel extends JPanel {
 
     private void updateStudentListForSelectedAudience() {
         studentListModel.clear();
-        String selectedAudienceName = (String) audienceSelectComboBox.getSelectedItem();
-        if (selectedAudienceName != null) {
-            List<Student> students = studentController.getStudentsByAudience(selectedAudienceName);
+        String audName = (String) audienceSelectComboBox.getSelectedItem();
+        if (audName != null) {
+            List<Student> students = studentController.getStudentsByAudience(audName);
             for (Student s : students) {
                 studentListModel.addElement(s);
             }

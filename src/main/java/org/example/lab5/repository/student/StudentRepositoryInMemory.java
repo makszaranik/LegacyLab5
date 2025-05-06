@@ -1,6 +1,7 @@
 package org.example.lab5.repository.student;
 
 import org.example.lab5.Annotation.Component;
+import org.example.lab5.Annotation.Persistent;
 import org.example.lab5.model.Student;
 
 import java.io.Serial;
@@ -10,23 +11,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Persistent
 public class StudentRepositoryInMemory implements StudentRepository, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private static StudentRepositoryInMemory instance;
-
     private final List<Student> students = new ArrayList<>();
 
-    private StudentRepositoryInMemory() {}
-
-    public static StudentRepositoryInMemory getInstance() {
-        if (instance == null) {
-            instance = new StudentRepositoryInMemory();
-        }
-        return instance;
-    }
+    public StudentRepositoryInMemory() {}
 
     @Override
     public void addStudent(Student student) {

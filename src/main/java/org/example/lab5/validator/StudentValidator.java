@@ -6,16 +6,7 @@ import org.example.lab5.Annotation.Component;
 @Component
 public class StudentValidator {
 
-    private static StudentValidator instance;
-
-    private StudentValidator() {}
-
-    public static StudentValidator getInstance() {
-        if (instance == null) {
-            instance = new StudentValidator();
-        }
-        return instance;
-    }
+    public StudentValidator() {}
 
     public void validate(String name, String ageStr) {
         if (name == null || name.trim().isEmpty()) {

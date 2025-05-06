@@ -1,6 +1,7 @@
 package org.example.lab5.repository.audience;
 
 import org.example.lab5.Annotation.Component;
+import org.example.lab5.Annotation.Persistent;
 import org.example.lab5.model.Audience;
 
 import java.io.Serial;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Persistent
 public class AudienceRepositoryInMemory implements AudienceRepository, Serializable {
 
     @Serial
@@ -18,14 +20,7 @@ public class AudienceRepositoryInMemory implements AudienceRepository, Serializa
     private static AudienceRepositoryInMemory instance;
     private final List<Audience> audiences = new ArrayList<>();
 
-    private AudienceRepositoryInMemory() {}
-
-    public static AudienceRepositoryInMemory getInstance() {
-        if (instance == null) {
-            instance = new AudienceRepositoryInMemory();
-        }
-        return instance;
-    }
+    public AudienceRepositoryInMemory() {}
 
     @Override
     public void addAudience(Audience audience) {

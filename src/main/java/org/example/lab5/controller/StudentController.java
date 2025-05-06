@@ -1,5 +1,6 @@
 package org.example.lab5.controller;
 
+import org.example.lab5.Annotation.Autowired;
 import org.example.lab5.Annotation.Component;
 import org.example.lab5.model.Audience;
 import org.example.lab5.model.Student;
@@ -15,14 +16,14 @@ import java.util.Optional;
 @Component
 public class StudentController {
 
-    private AudienceRepository audienceRepository = AudienceRepositoryInMemory.getInstance();
-    private StudentRepository studentRepository = StudentRepositoryInMemory.getInstance();
-    private final StudentValidator studentValidator = StudentValidator.getInstance();
+    @Autowired
+    private AudienceRepositoryInMemory audienceRepository;
 
-    public StudentController(AudienceRepository audienceRepository, StudentRepository studentRepository) {
-        this.audienceRepository = audienceRepository;
-        this.studentRepository = studentRepository;
-    }
+    @Autowired
+    private StudentRepositoryInMemory studentRepository;
+
+    @Autowired
+    private StudentValidator studentValidator;
 
     public StudentController() {}
 

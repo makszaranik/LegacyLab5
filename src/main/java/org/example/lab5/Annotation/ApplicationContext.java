@@ -3,6 +3,7 @@ package org.example.lab5.Annotation;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,19 @@ public class ApplicationContext {
 
     public ApplicationContext(String basePackage) throws Exception {
         scanAndLoadComponents(basePackage);
+        injectAllDependencies();
+        invokePostConstructs();
+    }
+
+    private void invokePostConstructs() throws Exception {
+        for (Object bean : container.values()) {
+            for (Method method : bean.getClass().getDeclaredMethods()) {
+                if (method.isAnnotationPresent(PostConstruct.class)) {
+                    method.setAccessible(true);
+                    method.invoke(bean);
+                }
+            }
+        }
     }
 
     private void scanAndLoadComponents(String basePackage) throws Exception {
@@ -29,13 +43,13 @@ public class ApplicationContext {
     }
 
     public <T> T getBean(Class<T> clazz) throws Exception {
-        Object instance = container.get(clazz);
-        if (instance == null) {
-            registerBean(clazz);
+        return clazz.cast(container.get(clazz));
+    }
+
+    private void injectAllDependencies() throws Exception {
+        for(Object bean : container.values()){
+            injectDependencies(bean);
         }
-        instance = container.get(clazz);
-        injectDependencies(instance);
-        return clazz.cast(instance);
     }
 
     private void injectDependencies(Object bean) throws Exception {
