@@ -1,11 +1,19 @@
 package org.example.lab5.repository.student;
 
+import org.example.lab5.Annotation.Component;
 import org.example.lab5.model.Student;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class StudentRepositoryInMemory implements StudentRepository {
+@Component
+public class StudentRepositoryInMemory implements StudentRepository, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private static StudentRepositoryInMemory instance;
 

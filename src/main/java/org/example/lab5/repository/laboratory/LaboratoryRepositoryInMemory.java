@@ -1,10 +1,12 @@
 package org.example.lab5.repository.laboratory;
 
+import org.example.lab5.Annotation.Component;
 import org.example.lab5.model.Laboratory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class LaboratoryRepositoryInMemory implements LaboratoryRepository {
 
     private final List<Laboratory> laboratories = new ArrayList<>();

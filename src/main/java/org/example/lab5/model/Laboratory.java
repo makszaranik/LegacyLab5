@@ -2,11 +2,16 @@ package org.example.lab5.model;
 
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class Laboratory extends Audience implements Comparable<Laboratory> {
+public class Laboratory extends Audience implements Comparable<Laboratory>, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private static final int DEFAULT_CAPACITY = 30;
     private List<String> equipment;

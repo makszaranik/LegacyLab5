@@ -1,11 +1,19 @@
 package org.example.lab5.repository.audience;
 
+import org.example.lab5.Annotation.Component;
 import org.example.lab5.model.Audience;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class AudienceRepositoryInMemory implements AudienceRepository {
+@Component
+public class AudienceRepositoryInMemory implements AudienceRepository, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private static AudienceRepositoryInMemory instance;
     private final List<Audience> audiences = new ArrayList<>();

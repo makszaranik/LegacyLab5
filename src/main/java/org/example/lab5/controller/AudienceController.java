@@ -1,5 +1,6 @@
 package org.example.lab5.controller;
 
+import org.example.lab5.Annotation.Component;
 import org.example.lab5.model.Audience;
 import org.example.lab5.repository.audience.AudienceRepository;
 import org.example.lab5.repository.audience.AudienceRepositoryInMemory;
@@ -8,6 +9,7 @@ import org.example.lab5.validator.AudienceValidator;
 import java.util.Comparator;
 import java.util.List;
 
+@Component
 public class AudienceController {
     private AudienceRepository audienceRepository = AudienceRepositoryInMemory.getInstance();
     private AudienceValidator audienceValidator = AudienceValidator.getInstance();

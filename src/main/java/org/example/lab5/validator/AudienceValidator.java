@@ -1,7 +1,10 @@
 package org.example.lab5.validator;
 
+import org.example.lab5.Annotation.Component;
 import org.example.lab5.model.Audience;
 
+
+@Component
 public class AudienceValidator {
 
     private static AudienceValidator instance;

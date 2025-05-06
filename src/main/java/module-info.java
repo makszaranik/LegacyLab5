@@ -3,6 +3,9 @@ module org.example.lab5 {
     requires javafx.fxml;
     requires java.desktop;
     requires static lombok;
+    requires org.reflections;
+    requires java.sql;
+    requires jdk.jfr;
 
 
     opens org.example.lab5 to javafx.fxml;
@@ -13,4 +16,6 @@ module org.example.lab5 {
     opens org.example.lab5.view to javafx.fxml;
     exports org.example.lab5.controller;
     opens org.example.lab5.controller to javafx.fxml;
+    exports org.example.lab5.Annotation;
+    opens org.example.lab5.Annotation to javafx.fxml;
 }

@@ -138,7 +138,7 @@ public class StudentPanel extends JPanel {
             return;
         }
         try {
-            studentController.addStudentToAudience(selectedAudienceName, studentName, age);
+            studentController.addStudentToAudience(selectedAudienceName, studentName, String.valueOf(age));
             JOptionPane.showMessageDialog(this,
                     "Student " + studentName + " added!");
         } catch (Exception ex) {
@@ -185,7 +185,7 @@ public class StudentPanel extends JPanel {
             return;
         }
         try {
-            studentController.updateStudent(oldName, newName, newAge);
+            studentController.updateStudent(oldName, newName, String.valueOf(newAge));
             JOptionPane.showMessageDialog(this,
                     "Student updated successfully!");
         } catch (Exception ex) {

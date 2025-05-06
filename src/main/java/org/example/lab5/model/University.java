@@ -1,10 +1,16 @@
 package org.example.lab5.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class University {
+public class University implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private List<Audience> audiences;
 
     public University() {

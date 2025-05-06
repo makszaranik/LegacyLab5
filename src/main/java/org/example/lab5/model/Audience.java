@@ -2,12 +2,18 @@ package org.example.lab5.model;
 
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Data
-public class Audience {
+public class Audience implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private String name;
     private int capacity;
     private AudienceType audienceType;
